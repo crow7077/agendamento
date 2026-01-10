@@ -4,7 +4,7 @@ import { auth, db } from "./firebase";
 import {
   signInWithEmailAndPassword,
   sendPasswordResetEmail,
-} from "firebase/auth"; // TUDO EM UMA LINHA SÓ
+} from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 import { doc, getDoc } from "firebase/firestore";
 import "./Login.css";
@@ -15,14 +15,28 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  // ... dentro do componente Login ...
+  // 1. Função de Esquecer Senha (Agora definida corretamente)
+  const handleForgotPassword = async () => {
+    if (!email) {
+      alert("Por favor, digite seu e-mail no campo acima primeiro.");
+      return;
+    }
 
+    try {
+      await sendPasswordResetEmail(auth, email);
+      alert("E-mail de redefinição enviado! Verifique sua caixa de entrada.");
+    } catch (error: any) {
+      console.error("Erro ao enviar e-mail:", error.code);
+      alert("Erro ao enviar e-mail. Verifique se o endereço está correto.");
+    }
+  };
+
+  // 2. Função de Login
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      // 1. Faz o login básico
       const userCredential = await signInWithEmailAndPassword(
         auth,
         email,
@@ -30,34 +44,25 @@ export default function Login() {
       );
       const user = userCredential.user;
 
-      // 2. BUSCA O CARGO NO FIRESTORE
-      // Vamos na coleção "usuarios" buscar o documento que tem o ID do usuário logado
       const userDoc = await getDoc(doc(db, "usuarios", user.uid));
 
       if (userDoc.exists()) {
         const cargo = userDoc.data().cargo;
-
-        // Se no banco estiver como barbeiro OU for o seu e-mail pessoal
         if (cargo === "barbeiro" || user.email === "renatonj0489@gmail.com") {
           navigate("/dashboard");
         } else {
           navigate("/agendamento");
         }
       } else {
-        // Se o documento NÃO existir no banco ainda
         if (user.email === "renatonj0489@gmail.com") {
-          console.log("Dono detectado via e-mail. Entrando...");
           navigate("/dashboard");
         } else {
-          alert(
-            "Perfil em análise. Você será redirecionado para o agendamento."
-          );
           navigate("/agendamento");
         }
       }
     } catch (error: any) {
       console.error("Erro ao logar:", error.code);
-      alert("Erro no login. Verifique e-mail e senha.");
+      alert("E-mail ou senha incorretos.");
     } finally {
       setLoading(false);
     }
@@ -106,7 +111,7 @@ export default function Login() {
             href="#"
             className="forgot-password"
             onClick={(e) => {
-              e.preventDefault(); // Impede a página de recarregar
+              e.preventDefault();
               handleForgotPassword();
             }}
           >
@@ -115,9 +120,7 @@ export default function Login() {
 
           <button type="submit" className="btn-submit" disabled={loading}>
             {loading ? (
-              <>
-                <Loader2 size={20} className="animate-spin" /> Carregando...
-              </>
+              <Loader2 size={20} className="animate-spin" />
             ) : (
               <>
                 <LogIn size={20} /> Entrar
@@ -125,7 +128,7 @@ export default function Login() {
             )}
           </button>
         </form>
-        {/* Adicione isso abaixo do botão de Entrar */}
+
         <div className="footer-link">
           Não tem uma conta?{" "}
           <span className="link-blue" onClick={() => navigate("/cadastro")}>
