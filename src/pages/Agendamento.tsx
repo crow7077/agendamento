@@ -96,7 +96,15 @@ export default function Agendamento() {
           </div>
 
           <button type="submit" className="btn-submit" disabled={loading}>
-            {loading ? "Salvando..." : "Confirmar Agendamento"}
+            {loading ? (
+              "Salvando..."
+            ) : (
+              <>
+                <CheckCircle size={20} />{" "}
+                {/* Verifique se esta linha existe e está escrita assim */}
+                Confirmar Agendamento
+              </>
+            )}
           </button>
         </form>
 
