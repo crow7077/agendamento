@@ -1,0 +1,85 @@
+/* --- ESTILO BASE (MOBILE FIRST) --- */
+.app-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f8fafc;
+    padding: 1rem;
+    /* Espaçamento menor em celulares */
+}
+
+.title {
+    font-size: 1.5rem;
+    /* Título menor para celular */
+    color: #1e293b;
+    margin: 1.5rem 0;
+    text-align: center;
+}
+
+.booking-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 1rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    /* Ocupa a largura toda no celular */
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    color: #64748b;
+    margin-bottom: 0.4rem;
+}
+
+.form-input {
+    width: 100%;
+    height: 48px;
+    /* Altura ideal para toque (touch) */
+    padding: 0 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 1rem;
+    /* Evita zoom automático no iOS */
+    box-sizing: border-box;
+}
+
+.btn-submit {
+    width: 100%;
+    height: 52px;
+    /* Botão grande para facilitar o clique com o polegar */
+    background-color: #2563eb;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-weight: bold;
+    font-size: 1rem;
+    margin-top: 1rem;
+}
+
+/* --- ADAPTAÇÃO PARA DESKTOP (TABLETS E PCS) --- */
+@media (min-width: 768px) {
+    .app-container {
+        padding: 3rem;
+    }
+
+    .title {
+        font-size: 2.25rem;
+    }
+
+    .booking-card {
+        max-width: 450px;
+        /* No PC o card não fica gigante */
+        padding: 2.5rem;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+    }
+}
