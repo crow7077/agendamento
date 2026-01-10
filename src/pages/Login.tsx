@@ -1,10 +1,13 @@
 import { useState } from "react";
 import { Mail, Lock, LogIn, Loader2 } from "lucide-react";
-import { auth, db } from "./firebase"; // Mudou para ./ porque está na mesma pasta
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth, db } from "./firebase";
+import {
+  signInWithEmailAndPassword,
+  sendPasswordResetEmail,
+} from "firebase/auth"; // TUDO EM UMA LINHA SÓ
 import { useNavigate } from "react-router-dom";
-import { doc, getDoc } from "firebase/firestore"; // Importe o getDoc e doc do firestore
-import "./Login.css"; // Mudou para ./ porque está na mesma pasta
+import { doc, getDoc } from "firebase/firestore";
+import "./Login.css";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -99,7 +102,14 @@ export default function Login() {
             />
           </div>
 
-          <a href="#" className="forgot-password">
+          <a
+            href="#"
+            className="forgot-password"
+            onClick={(e) => {
+              e.preventDefault(); // Impede a página de recarregar
+              handleForgotPassword();
+            }}
+          >
             Esqueceu a senha?
           </a>
 

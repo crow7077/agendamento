@@ -115,3 +115,29 @@
 .link-blue:hover {
     text-decoration: underline;
 }
+
+/* Link Esqueceu a Senha */
+.forgot-password {
+    display: block;
+    text-align: right;
+    /* Alinha o link à direita, abaixo do campo de senha */
+    font-size: 14px;
+    color: #2563eb;
+    font-weight: 500;
+    text-decoration: none;
+    margin-top: -10px;
+    /* Puxa um pouco para cima para ficar perto do input */
+    margin-bottom: 15px;
+    transition: color 0.2s;
+    cursor: pointer;
+}
+
+.forgot-password:hover {
+    color: #1d4ed8;
+    text-decoration: underline;
+}
+
+/* Ajuste no Form Group para comportar o link */
+.form-group {
+    margin-bottom: 20px;
+}
