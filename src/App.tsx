@@ -1,46 +1,76 @@
-import "./App.css";
-import { User, Calendar, Clock } from "lucide-react";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+import { useEffect, useState } from "react";
+import { auth } from "./pages/firebase";
+import { onAuthStateChanged } from "firebase/auth";
+
+// Importe suas páginas (verifique se os caminhos estão corretos)
+import Login from "./pages/Login";
+import Cadastro from "./pages/Cadastro";
+import Dashboard from "./pages/Dashboard";
+import Agendamento from "./pages/Agendamento";
+import Financas from "./pages/Financas";
 
 export default function App() {
+  const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Esse "observador" checa se o usuário já estava logado antes
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  if (loading) {
+    return (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+          background: "#0f172a",
+          color: "white",
+        }}
+      >
+        Carregando sistema...
+      </div>
+    );
+  }
+
   return (
-    <main className="app-container">
-      <header>
-        <h1 className="title">Agendamento Online</h1>
-      </header>
+    <Router>
+      <Routes>
+        {/* Se o usuário não estiver logado, ele vai para o Login. Se estiver, vai para o Agendamento */}
+        <Route
+          path="/"
+          element={!user ? <Login /> : <Navigate to="/agendamento" />}
+        />
 
-      <section className="booking-card">
-        <form>
-          <div className="form-group">
-            <label className="form-label" htmlFor="name">
-              <User size={20} /> Nome Completo
-            </label>
-            <input
-              id="name"
-              type="text"
-              className="form-input"
-              placeholder="Digite seu nome"
-            />
-          </div>
+        <Route path="/cadastro" element={<Cadastro />} />
 
-          <div className="form-group">
-            <label className="form-label" htmlFor="date">
-              <Calendar size={20} /> Selecione a Data
-            </label>
-            <input id="date" type="date" className="form-input" />
-          </div>
-
-          <div className="form-group">
-            <label className="form-label" htmlFor="time">
-              <Clock size={20} /> Horário
-            </label>
-            <input id="time" type="time" className="form-input" />
-          </div>
-
-          <button type="submit" className="btn-submit">
-            Confirmar Agendamento
-          </button>
-        </form>
-      </section>
-    </main>
+        {/* Rotas Protegidas (Sempre checam se o user existe) */}
+        <Route
+          path="/agendamento"
+          element={user ? <Agendamento /> : <Navigate to="/" />}
+        />
+        <Route
+          path="/dashboard"
+          element={user ? <Dashboard /> : <Navigate to="/" />}
+        />
+        <Route
+          path="/financas"
+          element={user ? <Financas /> : <Navigate to="/" />}
+        />
+      </Routes>
+    </Router>
   );
 }
