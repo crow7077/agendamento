@@ -32,21 +32,25 @@ export default function Login() {
       const userDoc = await getDoc(doc(db, "usuarios", user.uid));
 
       if (userDoc.exists()) {
-        const dadosUsuario = userDoc.data();
-        const cargo = dadosUsuario.cargo;
+        const cargo = userDoc.data().cargo;
 
-        console.log("Usuário logado como:", cargo);
-
-        // 3. REDIRECIONAMENTO COM BASE NO CARGO
-        if (cargo === "barbeiro") {
-          navigate("/dashboard"); // Vai para a tela de dono/admin
+        // Se no banco estiver como barbeiro OU for o seu e-mail pessoal
+        if (cargo === "barbeiro" || user.email === "renatonj0489@gmail.com") {
+          navigate("/dashboard");
         } else {
-          navigate("/agendamento"); // Cliente vai direto para a tela de marcar horário
+          navigate("/agendamento");
         }
       } else {
-        // Caso o usuário exista no Auth mas não no Firestore (ex: sua conta antiga)
-        alert("Perfil não encontrado no banco de dados.");
-        navigate("/dashboard");
+        // Se o documento NÃO existir no banco ainda
+        if (user.email === "renatonj0489@gmail.com") {
+          console.log("Dono detectado via e-mail. Entrando...");
+          navigate("/dashboard");
+        } else {
+          alert(
+            "Perfil em análise. Você será redirecionado para o agendamento."
+          );
+          navigate("/agendamento");
+        }
       }
     } catch (error: any) {
       console.error("Erro ao logar:", error.code);
