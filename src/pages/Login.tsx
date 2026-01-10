@@ -7,6 +7,7 @@ import {
 } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 import { doc, getDoc } from "firebase/firestore";
+import logoImg from "../assets/img/logobarber.png";
 import "./Login.css";
 
 export default function Login() {
@@ -15,23 +16,19 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  // 1. Função de Esquecer Senha (Agora definida corretamente)
   const handleForgotPassword = async () => {
     if (!email) {
-      alert("Por favor, digite seu e-mail no campo acima primeiro.");
+      alert("Por favor, digite seu e-mail primeiro.");
       return;
     }
-
     try {
       await sendPasswordResetEmail(auth, email);
-      alert("E-mail de redefinição enviado! Verifique sua caixa de entrada.");
-    } catch (error: any) {
-      console.error("Erro ao enviar e-mail:", error.code);
-      alert("Erro ao enviar e-mail. Verifique se o endereço está correto.");
+      alert("E-mail de recuperação enviado!");
+    } catch (error) {
+      alert("Erro ao enviar e-mail. Verifique o endereço digitado.");
     }
   };
 
-  // 2. Função de Login
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -45,23 +42,14 @@ export default function Login() {
       const user = userCredential.user;
 
       const userDoc = await getDoc(doc(db, "usuarios", user.uid));
+      const cargo = userDoc.exists() ? userDoc.data().cargo : "cliente";
 
-      if (userDoc.exists()) {
-        const cargo = userDoc.data().cargo;
-        if (cargo === "barbeiro" || user.email === "renatonj0489@gmail.com") {
-          navigate("/dashboard");
-        } else {
-          navigate("/agendamento");
-        }
+      if (cargo === "barbeiro" || user.email === "renatonj0489@gmail.com") {
+        navigate("/dashboard");
       } else {
-        if (user.email === "renatonj0489@gmail.com") {
-          navigate("/dashboard");
-        } else {
-          navigate("/agendamento");
-        }
+        navigate("/agendamento");
       }
-    } catch (error: any) {
-      console.error("Erro ao logar:", error.code);
+    } catch (error) {
       alert("E-mail ou senha incorretos.");
     } finally {
       setLoading(false);
@@ -72,69 +60,64 @@ export default function Login() {
     <div className="login-container">
       <div className="login-card">
         <header className="login-header">
-          <h2>Bem-vindo de volta</h2>
-          <p>Entre com seus dados para acessar</p>
+          <img src={logoImg} alt="Logo Barber Shop" className="login-logo" />
+          <p>Acesse sua conta</p>
         </header>
 
         <form onSubmit={handleLogin}>
           <div className="form-group">
-            <label className="form-label">
-              <Mail size={18} /> E-mail
-            </label>
-            <input
-              type="email"
-              className="form-input"
-              placeholder="seu@email.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              disabled={loading}
-              required
-            />
+            <div className="input-wrapper">
+              <Mail className="input-icon" size={20} />
+              <input
+                type="email"
+                placeholder="E-mail"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
           </div>
 
           <div className="form-group">
-            <label className="form-label">
-              <Lock size={18} /> Senha
-            </label>
-            <input
-              type="password"
-              className="form-input"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              disabled={loading}
-              required
-            />
+            <div className="input-wrapper">
+              <Lock className="input-icon" size={20} />
+              <input
+                type="password"
+                placeholder="Senha"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
           </div>
 
-          <a
-            href="#"
-            className="forgot-password"
-            onClick={(e) => {
-              e.preventDefault();
-              handleForgotPassword();
-            }}
-          >
-            Esqueceu a senha?
-          </a>
-
-          <button type="submit" className="btn-submit" disabled={loading}>
+          <button type="submit" className="btn-login" disabled={loading}>
             {loading ? (
-              <Loader2 size={20} className="animate-spin" />
+              <Loader2 className="animate-spin" />
             ) : (
               <>
-                <LogIn size={20} /> Entrar
+                Login <LogIn size={18} />
               </>
             )}
           </button>
+
+          <div className="forgot-wrapper">
+            <button
+              type="button"
+              onClick={handleForgotPassword}
+              className="forgot-link"
+            >
+              Esqueceu sua senha?
+            </button>
+          </div>
         </form>
 
-        <div className="footer-link">
-          Não tem uma conta?{" "}
-          <span className="link-blue" onClick={() => navigate("/cadastro")}>
-            Cadastre-se agora
-          </span>
-        </div>
+        <footer className="login-footer">
+          <span>Não possui conta?</span>
+          <button onClick={() => navigate("/cadastro")} className="signup-link">
+            Faça seu Cadastro
+          </button>
+        </footer>
       </div>
     </div>
   );
