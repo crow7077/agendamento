@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { db } from "./firebase"; // Estão na mesma pasta pages
+import { db } from "./firebase";
 import { collection, getDocs } from "firebase/firestore";
-import { ArrowLeft, DollarSign, TrendingUp, Wallet } from "lucide-react";
+import { ArrowLeft, TrendingUp, Wallet } from "lucide-react"; // Removi o DollarSign daqui
 import { useNavigate } from "react-router-dom";
 
 export default function Financas() {
@@ -15,13 +15,12 @@ export default function Financas() {
         const querySnapshot = await getDocs(collection(db, "financas"));
         const dados = querySnapshot.docs.map((doc) => ({
           id: doc.id,
-          ...doc.data(),
+          ...(doc.data() as any), // O "as any" resolve o erro de propriedade inexistente
         }));
         setMovimentacoes(dados);
 
-        // Calcula o total automaticamente (Soma os campos 'valor')
         const soma = dados.reduce(
-          (acc, curr) => acc + (Number(curr.valor) || 0),
+          (acc: number, curr: any) => acc + (Number(curr.valor) || 0),
           0
         );
         setTotal(soma);
@@ -56,7 +55,6 @@ export default function Financas() {
         <h2 style={{ color: "white", margin: 0 }}>Financeiro</h2>
       </header>
 
-      {/* Card de Saldo Total */}
       <div
         className="login-card"
         style={{
@@ -72,7 +70,6 @@ export default function Financas() {
         </h1>
       </div>
 
-      {/* Lista de Entradas */}
       <div className="login-card">
         <div className="form-label">
           <TrendingUp size={20} color="#6366f1" /> Histórico de Ganhos
