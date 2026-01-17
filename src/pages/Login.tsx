@@ -8,6 +8,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { doc, getDoc } from "firebase/firestore";
 import logoImg from "../assets/img/logobarber.png";
+import backgroundBarber from "../assets/img/barbearia1.png";
 import "./Login.css";
 
 export default function Login() {
@@ -37,7 +38,7 @@ export default function Login() {
       const userCredential = await signInWithEmailAndPassword(
         auth,
         email,
-        password
+        password,
       );
       const user = userCredential.user;
 
@@ -57,7 +58,10 @@ export default function Login() {
   };
 
   return (
-    <div className="login-container">
+    <div
+      className="login-container"
+      style={{ backgroundImage: `url(${backgroundBarber})` }}
+    >
       <div className="login-card">
         <header className="login-header">
           <img src={logoImg} alt="Logo Barber Shop" className="login-logo" />
