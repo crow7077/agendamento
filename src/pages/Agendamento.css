@@ -1,0 +1,170 @@
+.booking-container {
+    min-height: 100vh;
+    background-color: #0F172A;
+    color: #F8FAFC;
+    padding: 20px;
+    padding-bottom: 120px;
+}
+
+.booking-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.btn-back {
+    background: #1E293B;
+    border: none;
+    color: white;
+    padding: 8px;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.9rem;
+    color: #94A3B8;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.booking-section {
+    margin-bottom: 30px;
+}
+
+/* Services */
+.services-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.service-card {
+    background: #1E293B;
+    border: 1px solid #334155;
+    padding: 15px;
+    border-radius: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.service-card.active {
+    border-color: #3B82F6;
+    background: #3b82f61a;
+}
+
+.service-price {
+    color: #3B82F6;
+    font-weight: bold;
+}
+
+/* CALENDÁRIO CUSTOMIZADO */
+.calendar-wrapper {
+    background: #1E293B;
+    padding: 10px;
+    border-radius: 12px;
+    border: 1px solid #334155;
+}
+
+.react-calendar {
+    width: 100% !important;
+    background: transparent !important;
+    border: none !important;
+    color: white !important;
+}
+
+.react-calendar__tile:disabled {
+    background-color: #303f53 !important;
+}
+
+
+.react-calendar__tile {
+    color: #F8FAFC !important;
+    padding: 12px 0 !important;
+}
+
+.react-calendar__tile:enabled:hover {
+    background: #3B82F6 !important;
+    border-radius: 8px;
+}
+
+.react-calendar__tile--now {
+    background: #387dba;
+}
+
+.react-calendar__tile--active {
+    background: #052d6e !important;
+    border-radius: 8px !important;
+}
+
+.react-calendar__navigation button:enabled:hover,
+.react-calendar__navigation button:enabled:focus {
+    background-color: #3B82F6;
+}
+
+.react-calendar__navigation button {
+    color: white !important;
+    font-size: 1.1rem;
+}
+
+.react-calendar__navigation button:disabled {
+    background-color: #303f53;
+}
+
+/* Hours */
+.hours-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+}
+
+.hour-item {
+    padding: 12px;
+    background: #1E293B;
+    border: 1px solid #334155;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.hour-item.active {
+    background: #3B82F6;
+    border-color: #3B82F6;
+}
+
+/* Botão Confirmar */
+.booking-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #0F172A;
+    padding: 20px;
+    border-top: 1px solid #1E293B;
+}
+
+.btn-confirm {
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+    display: block;
+    padding: 16px;
+    background: #3B82F6;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-weight: bold;
+}
+
+.btn-confirm:disabled {
+    opacity: 0.5;
+    background: #334155;
+}

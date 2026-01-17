@@ -1,126 +1,138 @@
 import { useState } from "react";
-import { db, auth } from "./firebase";
-import { collection, addDoc } from "firebase/firestore";
+import Calendar from "react-calendar";
+import "react-calendar/dist/Calendar.css"; // Base de estilo
+import {
+  Scissors,
+  Clock,
+  ChevronLeft,
+  Calendar as CalendarIcon,
+  CheckCircle2,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { Calendar, Clock, Scissors, CheckCircle, LogOut } from "lucide-react";
-import "./Login.css";
+import "./Agendamento.css";
+
+const SERVICOS = [
+  { id: 1, nome: "Corte Degradê", preco: "R$ 45,00", tempo: "45 min" },
+  { id: 2, nome: "Barba Terapia", preco: "R$ 35,00", tempo: "30 min" },
+  {
+    id: 3,
+    nome: "Combo (Corte + Barba)",
+    preco: "R$ 70,00",
+    tempo: "1h 15min",
+  },
+];
+
+const HORARIOS = [
+  "09:00",
+  "10:00",
+  "11:00",
+  "14:00",
+  "15:00",
+  "16:00",
+  "17:00",
+  "18:00",
+];
 
 export default function Agendamento() {
-  const [servico, setServico] = useState("Corte Masculino");
-  const [data, setData] = useState("");
-  const [hora, setHora] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [servicoSelecionado, setServicoSelecionado] = useState<number | null>(
+    null,
+  );
+  const [horarioSelecionado, setHorarioSelecionado] = useState<string | null>(
+    null,
+  );
+  const [dataSelecionada, setDataSelecionada] = useState<Date>(new Date());
   const navigate = useNavigate();
 
-  const handleAgendar = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
+  const finalizarAgendamento = () => {
+    // Formata a data para exibir no alerta
+    const dataFormatada = dataSelecionada.toLocaleDateString("pt-BR");
+    alert(
+      `Agendamento realizado!\nData: ${dataFormatada}\nHorário: ${horarioSelecionado}`,
+    );
 
-    try {
-      await addDoc(collection(db, "agendamentos"), {
-        clienteId: auth.currentUser?.uid,
-        nome: auth.currentUser?.email || "Cliente",
-        servico: servico,
-        data: data,
-        hora: hora,
-        valor: servico === "Corte Masculino" ? 50 : 80,
-        status: "pendente",
-        createdAt: new Date(),
-      });
-
-      alert("Agendamento realizado com sucesso!");
-      setData("");
-      setHora("");
-    } catch (error) {
-      console.error("Erro ao agendar:", error);
-      alert("Erro ao marcar horário.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleLogout = async () => {
-    await auth.signOut();
-    navigate("/");
+    // Volta automaticamente para o Dashboard
+    navigate("/dashboard");
   };
 
   return (
-    <div className="login-container">
-      <div className="login-card">
-        <header className="login-header">
-          <h2>Marcar Horário</h2>
-          <p>Escolha o melhor momento</p>
-        </header>
-
-        <form onSubmit={handleAgendar}>
-          <div className="form-group">
-            <label className="form-label">
-              <Scissors size={18} /> Serviço
-            </label>
-            <select
-              className="form-input"
-              value={servico}
-              onChange={(e) => setServico(e.target.value)}
-            >
-              <option value="Corte Masculino">
-                Corte Masculino - R$ 50,00
-              </option>
-              <option value="Corte + Barba">Corte + Barba - R$ 80,00</option>
-            </select>
-          </div>
-
-          <div className="form-group">
-            <label className="form-label">
-              <Calendar size={18} /> Data
-            </label>
-            <input
-              type="date"
-              className="form-input"
-              value={data}
-              onChange={(e) => setData(e.target.value)}
-              required
-            />
-          </div>
-
-          <div className="form-group">
-            <label className="form-label">
-              <Clock size={18} /> Horário
-            </label>
-            <input
-              type="time"
-              className="form-input"
-              value={hora}
-              onChange={(e) => setHora(e.target.value)}
-              required
-            />
-          </div>
-
-          <button type="submit" className="btn-submit" disabled={loading}>
-            {loading ? (
-              "Salvando..."
-            ) : (
-              <>
-                <CheckCircle size={20} />{" "}
-                {/* Verifique se esta linha existe e está escrita assim */}
-                Confirmar Agendamento
-              </>
-            )}
-          </button>
-        </form>
-
-        <button
-          onClick={handleLogout}
-          className="link-blue"
-          style={{
-            marginTop: "20px",
-            border: "none",
-            background: "none",
-            width: "100%",
-          }}
-        >
-          <LogOut size={16} /> Sair
+    <div className="booking-container">
+      <header className="booking-header">
+        {/* Seta para voltar ao Dashboard */}
+        <button onClick={() => navigate("/dashboard")} className="btn-back">
+          <ChevronLeft />
         </button>
-      </div>
+        <h1>Agendamento</h1>
+      </header>
+
+      <main className="booking-content">
+        {/* Seção 1: Serviços */}
+        <section className="booking-section">
+          <h2 className="section-title">
+            <Scissors size={20} /> Selecione o Serviço
+          </h2>
+          <div className="services-grid">
+            {SERVICOS.map((servico) => (
+              <div
+                key={servico.id}
+                className={`service-card ${servicoSelecionado === servico.id ? "active" : ""}`}
+                onClick={() => setServicoSelecionado(servico.id)}
+              >
+                <div className="service-info">
+                  <h3>{servico.nome}</h3>
+                  <span>{servico.tempo}</span>
+                </div>
+                <span className="service-price">{servico.preco}</span>
+                {servicoSelecionado === servico.id && (
+                  <CheckCircle2 className="check-icon" size={20} />
+                )}
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Seção 2: Calendário Inline */}
+        <section className="booking-section">
+          <h2 className="section-title">
+            <CalendarIcon size={20} /> Escolha a Data
+          </h2>
+          <div className="calendar-wrapper">
+            <Calendar
+              onChange={(val) => setDataSelecionada(val as Date)}
+              value={dataSelecionada}
+              minDate={new Date()} // Bloqueia dias passados
+              locale="pt-BR"
+            />
+          </div>
+        </section>
+
+        {/* Seção 3: Horários */}
+        <section className="booking-section">
+          <h2 className="section-title">
+            <Clock size={20} /> Horários Disponíveis
+          </h2>
+          <div className="hours-grid">
+            {HORARIOS.map((hora) => (
+              <button
+                key={hora}
+                className={`hour-item ${horarioSelecionado === hora ? "active" : ""}`}
+                onClick={() => setHorarioSelecionado(hora)}
+              >
+                {hora}
+              </button>
+            ))}
+          </div>
+        </section>
+      </main>
+
+      <footer className="booking-footer">
+        <button
+          className="btn-confirm"
+          disabled={!servicoSelecionado || !horarioSelecionado}
+          onClick={finalizarAgendamento}
+        >
+          Confirmar Agendamento
+        </button>
+      </footer>
     </div>
   );
 }

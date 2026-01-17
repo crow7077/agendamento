@@ -26,19 +26,16 @@
 }
 
 .login-logo {
-    width: 120px;
-    /* Ajuste conforme o seu logo no Figma */
+    width: 300px;
     height: auto;
-    /* Mantém a proporção */
-    margin-bottom: 20px;
-    /* Espaço entre o logo e o título */
+    margin-bottom: 18px;
     object-fit: contain;
 }
 
 .login-header p {
     color: #ffffff;
     font-size: 1.3rem;
-    margin-bottom: 32px;
+    margin-bottom: 18px;
 }
 
 /* Inputs */
