@@ -8,9 +8,9 @@ import { useEffect, useState } from "react";
 import { auth } from "./pages/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 
-// Importe suas páginas (verifique se os caminhos estão corretos)
+// Importação das suas páginas
 import Login from "./pages/Login";
-import Cadastro from "./pages/Cadastro";
+import CadastroUsuario from "./pages/CadastroUsuario";
 import Dashboard from "./pages/Dashboard";
 import Agendamento from "./pages/Agendamento";
 import Financas from "./pages/Financas";
@@ -20,7 +20,7 @@ export default function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Esse "observador" checa se o usuário já estava logado antes
+    // Observador que checa o estado da autenticação em tempo real
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       setLoading(false);
@@ -37,8 +37,9 @@ export default function App() {
           justifyContent: "center",
           alignItems: "center",
           height: "100vh",
-          background: "#0f172a",
-          color: "white",
+          background: "#000000",
+          color: "#E5B817",
+          fontFamily: "Inter, sans-serif",
         }}
       >
         Carregando sistema...
@@ -49,27 +50,34 @@ export default function App() {
   return (
     <Router>
       <Routes>
-        {/* Se o usuário não estiver logado, ele vai para o Login. Se estiver, vai para o Agendamento */}
+        {/* Rota Raiz (Login) */}
         <Route
           path="/"
           element={!user ? <Login /> : <Navigate to="/agendamento" />}
         />
 
-        <Route path="/cadastro" element={<Cadastro />} />
+        {/* Rota de Cadastro Única
+            Agora o componente CadastroUsuario gerencia internamente se é Dono ou Cliente */}
+        <Route path="/cadastro" element={<CadastroUsuario />} />
 
-        {/* Rotas Protegidas (Sempre checam se o user existe) */}
+        {/* Rotas Protegidas (Só acessíveis se o 'user' existir) */}
         <Route
           path="/agendamento"
           element={user ? <Agendamento /> : <Navigate to="/" />}
         />
+
         <Route
           path="/dashboard"
           element={user ? <Dashboard /> : <Navigate to="/" />}
         />
+
         <Route
           path="/financas"
           element={user ? <Financas /> : <Navigate to="/" />}
         />
+
+        {/* Fallback: Redireciona qualquer rota desconhecida para o Login */}
+        <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </Router>
   );
