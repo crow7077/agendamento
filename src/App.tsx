@@ -4,7 +4,7 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { auth, db } from "./pages/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
@@ -15,10 +15,11 @@ import Dashboard from "./pages/Dashboard";
 import Agendamento from "./pages/Agendamento";
 import Financas from "./pages/Financas";
 
+// Interface corrigida para evitar erro de namespace JSX
 interface ProtectedRouteProps {
   user: any;
   requireDono?: boolean;
-  children: JSX.Element;
+  children: ReactNode;
 }
 
 function ProtectedRoute({
@@ -33,7 +34,6 @@ function ProtectedRoute({
     async function checkCargo() {
       if (user) {
         try {
-          // Busca o perfil do usuário no Firestore para validar acesso
           const docRef = doc(db, "usuarios", user.uid);
           const docSnap = await getDoc(docRef);
           if (docSnap.exists()) {
@@ -51,12 +51,11 @@ function ProtectedRoute({
   if (!user) return <Navigate to="/" />;
   if (checking) return <div style={{ background: "#000", height: "100vh" }} />;
 
-  // Se a rota exige ser dono (ex: Finanças) e o usuário é cliente, volta para Dashboard
   if (requireDono && cargo !== "dono") {
     return <Navigate to="/dashboard" />;
   }
 
-  return children;
+  return <>{children}</>;
 }
 
 export default function App() {
@@ -76,13 +75,11 @@ export default function App() {
   return (
     <Router>
       <Routes>
-        {/* Se logado, sempre envia para o Dashboard como ponto central */}
         <Route
           path="/"
           element={!user ? <Login /> : <Navigate to="/dashboard" />}
         />
         <Route path="/cadastro" element={<CadastroUsuario />} />
-
         <Route
           path="/dashboard"
           element={
@@ -91,7 +88,6 @@ export default function App() {
             </ProtectedRoute>
           }
         />
-
         <Route
           path="/agendamento"
           element={
@@ -100,7 +96,6 @@ export default function App() {
             </ProtectedRoute>
           }
         />
-
         <Route
           path="/financas"
           element={
@@ -109,7 +104,6 @@ export default function App() {
             </ProtectedRoute>
           }
         />
-
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </Router>

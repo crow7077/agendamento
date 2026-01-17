@@ -1,0 +1,1 @@
+{"root":["./src/app.tsx","./src/main.tsx","./src/vite-env.d.ts","./src/componetnts/botaoagendamento.tsx","./src/pages/agendamento.tsx","./src/pages/cadastrousuario.tsx","./src/pages/dashboard.tsx","./src/pages/financas.tsx","./src/pages/login.tsx","./src/pages/firebase.ts"],"version":"5.9.3"}

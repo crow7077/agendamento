@@ -1,14 +1,11 @@
 import { useState } from "react";
-import { Mail, Lock, LogIn, Loader2 } from "lucide-react";
-// CORREÇÃO: Como Login.tsx e firebase.ts estão na mesma pasta 'pages', usa-se ./firebase
+import { LogIn, Loader2 } from "lucide-react";
 import { auth } from "./firebase";
-import {
-  signInWithEmailAndPassword,
-  sendPasswordResetEmail,
-} from "firebase/auth";
+import { signInWithEmailAndPassword } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
-import logoImg from "../assets/img/logobarber.png";
-import backgroundBarber from "../assets/img/barbearia1.png";
+// Subindo dois níveis (../../) para sair de 'pages' e chegar em 'assets'
+import logoimg from "../assets/img/logobarber.png";
+import backgroundbarber from "../assets/img/barbearia1.png";
 import "./Login.css";
 
 export default function Login() {
@@ -22,7 +19,6 @@ export default function Login() {
     setLoading(true);
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      // Redireciona para o Dashboard, que é o HUB central do sistema
       navigate("/dashboard");
     } catch (error) {
       alert("E-mail ou senha incorretos.");
@@ -34,11 +30,11 @@ export default function Login() {
   return (
     <div
       className="login-container"
-      style={{ backgroundImage: `url(${backgroundBarber})` }}
+      style={{ backgroundImage: `url(${backgroundbarber})` }}
     >
       <div className="login-card">
         <header className="login-header">
-          <img src={logoImg} alt="Logo" className="login-logo" />
+          <img src={logoimg} alt="Logo" className="login-logo" />
           <p>Acesse sua conta</p>
         </header>
         <form onSubmit={handleLogin}>
@@ -65,14 +61,14 @@ export default function Login() {
               <Loader2 className="animate-spin" />
             ) : (
               <>
-                Login <LogIn size={18} />
+                Entrar <LogIn size={18} />
               </>
             )}
           </button>
         </form>
         <footer className="login-footer">
           <button onClick={() => navigate("/cadastro")} className="signup-link">
-            Faça seu Cadastro
+            Cadastre-se
           </button>
         </footer>
       </div>
