@@ -1,9 +1,12 @@
 .booking-container {
     min-height: 100vh;
     background-color: #0F172A;
+    /* Azul escuro profundo */
     color: #F8FAFC;
     padding: 20px;
     padding-bottom: 120px;
+    /* Espaço para o rodapé fixo */
+    font-family: 'Inter', sans-serif;
 }
 
 .booking-header {
@@ -16,10 +19,21 @@
 .btn-back {
     background: #1E293B;
     border: none;
-    color: white;
+    color: #E5B817;
+    /* Dourado */
     padding: 8px;
     border-radius: 50%;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s;
+    z-index: 10;
+}
+
+.btn-back:hover {
+    transform: scale(1.1);
+    background: #334155;
 }
 
 .section-title {
@@ -37,40 +51,56 @@
     margin-bottom: 30px;
 }
 
-/* Services */
+/* Seleção de Serviços */
 .services-grid {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 12px;
 }
 
 .service-card {
     background: #1E293B;
     border: 1px solid #334155;
-    padding: 15px;
+    padding: 18px;
     border-radius: 12px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     cursor: pointer;
-    transition: 0.2s;
+    transition: all 0.2s ease;
 }
 
 .service-card.active {
-    border-color: #3B82F6;
-    background: #3b82f61a;
+    border-color: #E5B817;
+    background: rgba(229, 184, 23, 0.05);
+    box-shadow: 0 0 0 1px #E5B817;
+}
+
+.service-info h3 {
+    font-size: 1rem;
+    margin: 0;
+    color: #fff;
+}
+
+.service-info span {
+    font-size: 0.85rem;
+    color: #94A3B8;
 }
 
 .service-price {
-    color: #3B82F6;
-    font-weight: bold;
+    font-weight: 700;
+    color: #E5B817;
 }
 
-/* CALENDÁRIO CUSTOMIZADO */
+.check-icon {
+    color: #E5B817;
+}
+
+/* Calendário Customizado (React-Calendar) */
 .calendar-wrapper {
     background: #1E293B;
-    padding: 10px;
-    border-radius: 12px;
+    padding: 15px;
+    border-radius: 16px;
     border: 1px solid #334155;
 }
 
@@ -78,36 +108,24 @@
     width: 100% !important;
     background: transparent !important;
     border: none !important;
+    font-family: inherit !important;
     color: white !important;
 }
-
-.react-calendar__tile:disabled {
-    background-color: #303f53 !important;
-}
-
 
 .react-calendar__tile {
     color: #F8FAFC !important;
     padding: 12px 0 !important;
-}
-
-.react-calendar__tile:enabled:hover {
-    background: #3B82F6 !important;
     border-radius: 8px;
 }
 
-.react-calendar__tile--now {
-    background: #387dba;
+.react-calendar__tile:enabled:hover {
+    background: #334155 !important;
 }
 
 .react-calendar__tile--active {
-    background: #052d6e !important;
-    border-radius: 8px !important;
-}
-
-.react-calendar__navigation button:enabled:hover,
-.react-calendar__navigation button:enabled:focus {
-    background-color: #3B82F6;
+    background: #E5B817 !important;
+    color: #000 !important;
+    font-weight: bold;
 }
 
 .react-calendar__navigation button {
@@ -115,11 +133,7 @@
     font-size: 1.1rem;
 }
 
-.react-calendar__navigation button:disabled {
-    background-color: #303f53;
-}
-
-/* Hours */
+/* Horários */
 .hours-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -133,14 +147,17 @@
     color: white;
     border-radius: 8px;
     cursor: pointer;
+    font-weight: 600;
+    transition: 0.2s;
 }
 
 .hour-item.active {
-    background: #3B82F6;
-    border-color: #3B82F6;
+    background: #E5B817;
+    color: #000;
+    border-color: #E5B817;
 }
 
-/* Botão Confirmar */
+/* Rodapé Fixo */
 .booking-footer {
     position: fixed;
     bottom: 0;
@@ -149,22 +166,27 @@
     background: #0F172A;
     padding: 20px;
     border-top: 1px solid #1E293B;
+    display: flex;
+    justify-content: center;
 }
 
 .btn-confirm {
     width: 100%;
     max-width: 400px;
-    margin: 0 auto;
-    display: block;
     padding: 16px;
-    background: #3B82F6;
-    color: white;
+    background: #E5B817;
+    color: #000;
     border: none;
     border-radius: 12px;
-    font-weight: bold;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: opacity 0.2s;
 }
 
 .btn-confirm:disabled {
-    opacity: 0.5;
     background: #334155;
+    color: #64748B;
+    cursor: not-allowed;
+    opacity: 0.7;
 }

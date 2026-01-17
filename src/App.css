@@ -93,3 +93,24 @@ body {
         box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05);
     }
 }
+
+/* App.css */
+.loading-screen {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #000000;
+    color: #e5b817;
+    font-family: "Inter", sans-serif;
+    font-size: 1.2rem;
+    font-weight: 500;
+    letter-spacing: 1px;
+}
+
+/* Estilo para o container de verificação de permissão */
+.checking-container {
+    background-color: #000000;
+    height: 100vh;
+    width: 100vw;
+}

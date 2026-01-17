@@ -1,45 +1,62 @@
-/* Container Principal - Fundo escuro conforme o protótipo */
+/* ============================================================
+   1. CONTAINER PRINCIPAL 
+   Fundo escuro total para destacar o card. Usei um gradiente radial 
+   para dar profundidade e não ficar um preto "chapado".
+   ============================================================ */
 .login-container {
     min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
-    background-repeat: no-repeat;
-    background-size: cover;
-    background-position: center;
+    /* Gradiente sutil do centro para as bordas */
+    background: radial-gradient(circle, #1e293b 0%, #0f172a 100%);
     padding: 20px;
     font-family: 'Inter', sans-serif;
 }
 
-/* Card de Login */
+/* ============================================================
+   2. CARD DE LOGIN
+   Ajustado para ser responsivo. Removi o 'height: 700px' fixo para 
+   que ele se adapte ao conteúdo, evitando espaços vazios gigantes 
+   em telas menores.
+   ============================================================ */
 .login-card {
+    background-color: #1e293b;
     /* Slate 800 */
-    padding: 40px;
+    padding: 48px 40px;
     width: 100%;
     max-width: 410px;
-    height: 700px;
+    border-radius: 16px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    /* Sombra para flutuar */
     text-align: center;
     display: flex;
     flex-direction: column;
-    justify-content: center;
 }
 
 .login-logo {
-    width: 300px;
+    width: 220px;
+    /* Reduzi um pouco para equilibrar melhor o visual */
     height: auto;
-    margin-bottom: 18px;
+    margin: 0 auto 24px auto;
     object-fit: contain;
 }
 
 .login-header p {
-    color: #ffffff;
-    font-size: 1.3rem;
-    margin-bottom: 18px;
+    color: #94a3b8;
+    /* Cor mais suave (Slate 400) para o subtítulo */
+    font-size: 1.1rem;
+    margin-bottom: 32px;
 }
 
-/* Inputs */
+/* ============================================================
+   3. INPUTS E FORMULÁRIO
+   Ajustei o foco (outline) e o fundo para uma melhor experiência de 
+   digitação. O ícone agora acompanha o brilho do botão.
+   ============================================================ */
 .form-group {
-    margin-bottom: 16px;
+    margin-bottom: 20px;
+    text-align: left;
 }
 
 .input-wrapper {
@@ -50,39 +67,91 @@
 
 .input-icon {
     position: absolute;
-    left: 12px;
+    left: 16px;
     color: #E5B817;
-}
-
-.input-wrapper ::placeholder {
-    color: #8f8f8f;
+    /* Dourado nos ícones */
+    display: flex;
+    align-items: center;
 }
 
 .input-wrapper input {
     width: 100%;
-    max-width: 368px;
-    height: 62px;
-    padding: 14px 14px 14px 44px;
-    background: #31374075;
+    height: 56px;
+    /* Altura padrão mais moderna */
+    padding: 12px 16px 12px 48px;
+    background: #0f172a;
+    /* Fundo mais escuro que o card para contraste */
     color: #ffffff;
-    border: none;
-    border-radius: 8px;
+    border: 1px solid #334155;
+    border-radius: 12px;
     font-size: 16px;
     outline: none;
-    transition: border-color 0.2s;
+    transition: all 0.3s ease;
 }
 
-/* Link Esqueci Senha */
+/* Efeito ao clicar no input */
+.input-wrapper input:focus {
+    border-color: #E5B817;
+    box-shadow: 0 0 0 2px rgba(229, 184, 23, 0.2);
+}
+
+.input-wrapper ::placeholder {
+    color: #64748b;
+}
+
+/* ============================================================
+   4. BOTÃO DE LOGIN
+   Destaque principal. Adicionado efeito de escala ao clicar e 
+   melhoria na transição de cores.
+   ============================================================ */
+.btn-login {
+    width: 100%;
+    padding: 16px;
+    background-color: #E5B817;
+    color: #000000;
+    border: none;
+    border-radius: 12px;
+    font-size: 18px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: all 0.2s ease;
+}
+
+.btn-login:hover {
+    background-color: #f7ca2e;
+    /* Amarelo mais vivo no hover */
+    transform: translateY(-1px);
+}
+
+.btn-login:active {
+    transform: translateY(0);
+}
+
+.btn-login:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* ============================================================
+   5. LINKS E FOOTER (Esqueci senha / Criar conta)
+   Melhoria no espaçamento e nas cores para hierarquia visual.
+   ============================================================ */
 .forgot-wrapper {
-    text-align: center;
-    margin-top: 27px;
+    margin: 15px 0 25px 0;
+    text-align: right;
+    /* Alinhado à direita costuma ser o padrão de UX */
 }
 
 .forgot-link {
     background: none;
     border: none;
-    color: #ffffff;
-    font-size: 15px;
+    color: #94a3b8;
+    font-size: 14px;
     cursor: pointer;
     transition: color 0.2s;
 }
@@ -91,44 +160,32 @@
     color: #E5B817;
 }
 
-/* Botão de Login - Destaque do Figma */
-.btn-login {
-    width: 100%;
-    padding: 14px;
-    background-color: #E5B817;
-    color: rgb(0, 0, 0);
-    border: none;
-    border-radius: 8px;
-    font-size: 20px;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    cursor: pointer;
-    transition: background 0.2s;
-}
-
-.btn-login:hover {
-    background-color: #bd9605;
-}
-
-/* Footer do Card */
 .login-footer {
-    margin-top: 32px;
-    color: #ffffff;
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid #334155;
+    /* Linha divisória sutil */
+    color: #94a3b8;
     font-size: 14px;
 }
 
 .signup-link {
     background: none;
     border: none;
-    color: #bd9605;
-    font-weight: 600;
+    color: #E5B817;
+    font-weight: 700;
     margin-left: 5px;
     cursor: pointer;
+    text-transform: uppercase;
+    font-size: 13px;
+    letter-spacing: 0.5px;
 }
 
+.signup-link:hover {
+    text-decoration: underline;
+}
+
+/* Animação de Loading */
 .animate-spin {
     animation: spin 1s linear infinite;
 }

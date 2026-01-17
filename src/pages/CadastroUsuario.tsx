@@ -1,13 +1,15 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Eye, EyeOff, User, Store } from "lucide-react";
-import "./cadastro.css";
+import { auth, db } from "./firebase";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { doc, setDoc } from "firebase/firestore";
+import "./Cadastro.css"; // Note o 'C' maiúsculo conforme sua pasta
 
 export default function CadastroUsuario() {
   const navigate = useNavigate();
   const [showPass, setShowPass] = useState(false);
-
-  // Estado para controlar se é Cliente ou Dono internamente
+  const [loading, setLoading] = useState(false);
   const [perfil, setPerfil] = useState<"cliente" | "dono">("cliente");
 
   const [formData, setFormData] = useState({
@@ -19,15 +21,41 @@ export default function CadastroUsuario() {
     confirmar: "",
   });
 
-  const handleCadastro = (e: React.FormEvent) => {
+  const handleCadastro = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (formData.senha.length < 6)
-      return alert("A senha deve ter no mínimo 6 caracteres.");
+    if (formData.senha.length < 6) return alert("Mínimo 6 caracteres.");
     if (formData.senha !== formData.confirmar)
-      return alert("As senhas não coincidem.");
+      return alert("Senhas não coincidem.");
 
-    alert(`Conta de ${perfil} criada com sucesso!`);
-    navigate("/");
+    setLoading(true);
+    try {
+      // 1. Cria no Auth
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        formData.email,
+        formData.senha,
+      );
+      const user = userCredential.user;
+
+      // 2. Salva na coleção 'usuarios' que você já tem
+      await setDoc(doc(db, "usuarios", user.uid), {
+        uid: user.uid,
+        nome: formData.nome,
+        email: formData.email,
+        telefone: formData.telefone,
+        cargo: perfil,
+        // Salva barbearia apenas se for dono, senão salva null
+        barbearia: perfil === "dono" ? formData.barbearia : null,
+        dataCriacao: new Date(),
+      });
+
+      alert("Conta criada com sucesso!");
+      navigate("/");
+    } catch (error: any) {
+      alert("Erro: " + error.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -42,10 +70,9 @@ export default function CadastroUsuario() {
             <ArrowLeft size={30} color="#E5B817" />
           </button>
           <h1>Criar conta</h1>
-          <p>Selecione o tipo de conta e preencha os dados</p>
+          <p>Selecione o tipo de conta</p>
         </header>
 
-        {/* 🔘 SELETOR DE PERFIL */}
         <div className="perfil-selector">
           <button
             type="button"
@@ -68,7 +95,7 @@ export default function CadastroUsuario() {
             <label>Nome do responsável</label>
             <input
               type="text"
-              placeholder="Nome do responsável"
+              placeholder="Nome completo"
               required
               onChange={(e) =>
                 setFormData({ ...formData, nome: e.target.value })
@@ -76,7 +103,6 @@ export default function CadastroUsuario() {
             />
           </div>
 
-          {/* 🏢 CAMPO CONDICIONAL PARA DONO */}
           {perfil === "dono" && (
             <div className="input-group-line animate-fade-in">
               <label>Nome da sua barbearia</label>
@@ -148,13 +174,12 @@ export default function CadastroUsuario() {
             />
           </div>
 
-          <p className="terms-text">
-            Ao se cadastrar na plataforma, você está de acordo com os <br />
-            <span>Termos de Uso e Política de Privacidade</span>
-          </p>
-
-          <button type="submit" className="btn-cadastro-submit">
-            Criar conta {perfil === "dono" ? "Profissional" : ""}
+          <button
+            type="submit"
+            className="btn-cadastro-submit"
+            disabled={loading}
+          >
+            {loading ? "Processando..." : "Criar conta"}
           </button>
         </form>
       </div>

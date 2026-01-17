@@ -1,25 +1,14 @@
-import { useState } from "react";
-import Calendar from "react-calendar";
-import "react-calendar/dist/Calendar.css"; // Base de estilo
-import {
-  Scissors,
-  Clock,
-  ChevronLeft,
-  Calendar as CalendarIcon,
-  CheckCircle2,
-} from "lucide-react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import "./Agendamento.css";
+import { ChevronLeft, CheckCircle } from "lucide-react";
+import { auth, db } from "./firebase";
+import { collection, addDoc, doc, getDoc } from "firebase/firestore";
+import "./Agendamento.css"; // Certifique-se de ter os estilos para o calendário e seletores
 
 const SERVICOS = [
-  { id: 1, nome: "Corte Degradê", preco: "R$ 45,00", tempo: "45 min" },
-  { id: 2, nome: "Barba Terapia", preco: "R$ 35,00", tempo: "30 min" },
-  {
-    id: 3,
-    nome: "Combo (Corte + Barba)",
-    preco: "R$ 70,00",
-    tempo: "1h 15min",
-  },
+  { id: 1, nome: "Corte Masculino", preco: 50 },
+  { id: 2, nome: "Barba Terapia", preco: 35 },
+  { id: 3, nome: "Combo (Corte + Barba)", preco: 75 },
 ];
 
 const HORARIOS = [
@@ -30,94 +19,105 @@ const HORARIOS = [
   "15:00",
   "16:00",
   "17:00",
-  "18:00",
 ];
 
 export default function Agendamento() {
-  const [servicoSelecionado, setServicoSelecionado] = useState<number | null>(
-    null,
-  );
-  const [horarioSelecionado, setHorarioSelecionado] = useState<string | null>(
-    null,
-  );
-  const [dataSelecionada, setDataSelecionada] = useState<Date>(new Date());
   const navigate = useNavigate();
+  const [servicoId, setServicoId] = useState<number | null>(null);
+  const [horario, setHorario] = useState<string | null>(null);
+  const [data, setData] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const finalizarAgendamento = () => {
-    // Formata a data para exibir no alerta
-    const dataFormatada = dataSelecionada.toLocaleDateString("pt-BR");
-    alert(
-      `Agendamento realizado!\nData: ${dataFormatada}\nHorário: ${horarioSelecionado}`,
-    );
+  // Função para salvar no Firebase
+  const finalizarAgendamento = async () => {
+    if (!servicoId || !horario || !data) return;
 
-    // Volta automaticamente para o Dashboard
-    navigate("/dashboard");
+    setLoading(true);
+    try {
+      const user = auth.currentUser;
+      if (!user) throw new Error("Usuário não autenticado");
+
+      // Busca o nome do usuário para salvar junto ao agendamento
+      const userRef = doc(db, "usuarios", user.uid);
+      const userSnap = await getDoc(userRef);
+      const userData = userSnap.data();
+
+      const servicoNome = SERVICOS.find((s) => s.id === servicoId)?.nome;
+
+      // Salva no Firestore
+      await addDoc(collection(db, "agendamentos"), {
+        clienteId: user.uid,
+        clienteNome: userData?.nome || "Cliente",
+        servico: servicoNome,
+        data: data,
+        horario: horario,
+        status: "confirmado",
+        createdAt: new Date(),
+      });
+
+      alert("Agendamento realizado com sucesso!");
+      navigate("/dashboard");
+    } catch (error) {
+      console.error("Erro ao agendar:", error);
+      alert("Erro ao salvar agendamento.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="booking-container">
       <header className="booking-header">
-        {/* Seta para voltar ao Dashboard */}
-        <button onClick={() => navigate("/dashboard")} className="btn-back">
-          <ChevronLeft />
+        <button
+          type="button"
+          onClick={() => navigate("/dashboard")}
+          className="btn-back"
+        >
+          <ChevronLeft size={24} />
         </button>
-        <h1>Agendamento</h1>
+        <h1>Novo Agendamento</h1>
       </header>
 
       <main className="booking-content">
-        {/* Seção 1: Serviços */}
+        {/* Seleção de Serviço */}
         <section className="booking-section">
-          <h2 className="section-title">
-            <Scissors size={20} /> Selecione o Serviço
-          </h2>
+          <h3>Escolha o Serviço</h3>
           <div className="services-grid">
-            {SERVICOS.map((servico) => (
+            {SERVICOS.map((s) => (
               <div
-                key={servico.id}
-                className={`service-card ${servicoSelecionado === servico.id ? "active" : ""}`}
-                onClick={() => setServicoSelecionado(servico.id)}
+                key={s.id}
+                className={`service-card ${servicoId === s.id ? "selected" : ""}`}
+                onClick={() => setServicoId(s.id)}
               >
-                <div className="service-info">
-                  <h3>{servico.nome}</h3>
-                  <span>{servico.tempo}</span>
-                </div>
-                <span className="service-price">{servico.preco}</span>
-                {servicoSelecionado === servico.id && (
-                  <CheckCircle2 className="check-icon" size={20} />
-                )}
+                <span>{s.nome}</span>
+                <strong>R$ {s.preco}</strong>
               </div>
             ))}
           </div>
         </section>
 
-        {/* Seção 2: Calendário Inline */}
+        {/* Seleção de Data */}
         <section className="booking-section">
-          <h2 className="section-title">
-            <CalendarIcon size={20} /> Escolha a Data
-          </h2>
-          <div className="calendar-wrapper">
-            <Calendar
-              onChange={(val) => setDataSelecionada(val as Date)}
-              value={dataSelecionada}
-              minDate={new Date()} // Bloqueia dias passados
-              locale="pt-BR"
-            />
-          </div>
+          <h3>Data</h3>
+          <input
+            type="date"
+            className="date-input"
+            onChange={(e) => setData(e.target.value)}
+            min={new Date().toISOString().split("T")[0]}
+          />
         </section>
 
-        {/* Seção 3: Horários */}
+        {/* Seleção de Horário */}
         <section className="booking-section">
-          <h2 className="section-title">
-            <Clock size={20} /> Horários Disponíveis
-          </h2>
-          <div className="hours-grid">
-            {HORARIOS.map((hora) => (
+          <h3>Horários Disponíveis</h3>
+          <div className="time-grid">
+            {HORARIOS.map((h) => (
               <button
-                key={hora}
-                className={`hour-item ${horarioSelecionado === hora ? "active" : ""}`}
-                onClick={() => setHorarioSelecionado(hora)}
+                key={h}
+                className={`time-slot ${horario === h ? "selected" : ""}`}
+                onClick={() => setHorario(h)}
               >
-                {hora}
+                {h}
               </button>
             ))}
           </div>
@@ -127,10 +127,10 @@ export default function Agendamento() {
       <footer className="booking-footer">
         <button
           className="btn-confirm"
-          disabled={!servicoSelecionado || !horarioSelecionado}
+          disabled={!servicoId || !horario || !data || loading}
           onClick={finalizarAgendamento}
         >
-          Confirmar Agendamento
+          {loading ? "Salvando..." : "Confirmar Agendamento"}
         </button>
       </footer>
     </div>

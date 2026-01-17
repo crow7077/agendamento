@@ -1,148 +1,165 @@
-import { useEffect, useState } from "react";
-import { auth, db } from "./firebase";
-import { collection, getDocs } from "firebase/firestore";
+import { useState, useEffect } from "react";
+import {
+  Users,
+  DollarSign,
+  LogOut,
+  Clock,
+  Plus,
+  TrendingUp,
+  Calendar,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { Calendar, DollarSign, LogOut, User, PlusCircle } from "lucide-react";
+import { auth, db } from "./firebase";
+import {
+  collection,
+  query,
+  onSnapshot,
+  where,
+  doc,
+  getDoc,
+} from "firebase/firestore";
+import { signOut } from "firebase/auth";
+import "./Dashboard.css";
 
 export default function Dashboard() {
-  const [agendamentos, setAgendamentos] = useState<any[]>([]);
   const navigate = useNavigate();
+  const [agendamentos, setAgendamentos] = useState<any[]>([]);
+  const [userData, setUserData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // PASSO 1: SEGURANÇA (Verifica se o usuário está logado)
-    const user = auth.currentUser;
-    if (!user) {
-      navigate("/"); // Se não estiver logado, expulsa para o login
-      return;
-    }
+    async function loadData() {
+      if (auth.currentUser) {
+        // 1. Busca dados do perfil do usuário
+        const userRef = doc(db, "usuarios", auth.currentUser.uid);
+        const userSnap = await getDoc(userRef);
+        const data = userSnap.data();
+        setUserData(data);
 
-    const carregarDados = async () => {
-      try {
-        const querySnapshot = await getDocs(collection(db, "agendamentos"));
-        const lista = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setAgendamentos(lista);
-      } catch (error) {
-        console.error("Erro ao carregar dados:", error);
+        // 2. Define o que o usuário pode ver (Dono vê tudo, Cliente vê o dele)
+        const q =
+          data?.cargo === "dono"
+            ? query(collection(db, "agendamentos"))
+            : query(
+                collection(db, "agendamentos"),
+                where("clienteId", "==", auth.currentUser.uid),
+              );
+
+        // 3. Listener em tempo real
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+          const docs = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+          setAgendamentos(docs);
+          setLoading(false);
+        });
+
+        return () => unsubscribe();
       }
-    };
-
-    carregarDados();
-  }, [navigate]);
+    }
+    loadData();
+  }, []);
 
   const handleLogout = async () => {
-    await auth.signOut();
+    await signOut(auth);
     navigate("/");
   };
 
+  const isDono = userData?.cargo === "dono";
+
+  if (loading) return <div className="loading-screen">Carregando...</div>;
+
   return (
-    <div
-      className="login-container"
-      style={{ display: "block", overflowY: "auto", padding: "20px" }}
-    >
-      {/* CABEÇALHO */}
-      <header
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: "20px",
-        }}
-      >
-        <h2 style={{ color: "white" }}>Olá, Renato</h2>
-        <button
-          onClick={handleLogout}
-          className="btn-submit"
-          style={{ width: "auto", padding: "10px", backgroundColor: "#ef4444" }}
-        >
-          <LogOut size={20} />
-        </button>
-      </header>
-
-      {/* MENU DE ACESSO RÁPIDO */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr",
-          gap: "10px",
-          marginBottom: "20px",
-        }}
-      >
-        <button
-          onClick={() => navigate("/agendamento")}
-          className="btn-submit"
-          style={{ fontSize: "0.9rem" }}
-        >
-          <PlusCircle size={18} /> Novo Agendamento
-        </button>
-        <button
-          onClick={() => navigate("/financas")}
-          className="btn-submit"
-          style={{ fontSize: "0.9rem", backgroundColor: "#10b981" }}
-        >
-          <DollarSign size={18} /> Ver Finanças
-        </button>
-      </div>
-
-      {/* CARD DE RESUMO FINANCEIRO */}
-      <div
-        className="login-card"
-        style={{ marginBottom: "20px", borderLeft: "5px solid #10b981" }}
-      >
-        <div
-          className="form-label"
-          style={{ color: "#10b981", fontWeight: "bold" }}
-        >
-          <DollarSign size={20} /> Saldo de Hoje
+    <div className="dashboard-container">
+      {/* Sidebar */}
+      <aside className="dashboard-sidebar">
+        <div className="logo-section">
+          <h2>
+            Barber<span>Shop</span>
+          </h2>
         </div>
-        <h1 style={{ margin: "10px 0" }}>R$ 50,00</h1>
-      </div>
+        <nav className="sidebar-nav">
+          <button className="active">
+            <TrendingUp size={20} /> Dashboard
+          </button>
+          {isDono ? (
+            <button onClick={() => navigate("/financas")}>
+              <DollarSign size={20} /> Finanças
+            </button>
+          ) : (
+            <button onClick={() => navigate("/agendamento")}>
+              <Plus size={20} /> Novo Agendamento
+            </button>
+          )}
+        </nav>
+        <button className="logout-btn" onClick={handleLogout}>
+          <LogOut size={20} /> Sair
+        </button>
+      </aside>
 
-      {/* LISTA DE AGENDAMENTOS */}
-      <div className="login-card">
-        <div className="form-label">
-          <Calendar size={20} /> Clientes Agendados
-        </div>
-
-        {agendamentos.length > 0 ? (
-          agendamentos.map((item) => (
-            <div
-              key={item.id}
-              style={{
-                padding: "15px 0",
-                borderBottom: "1px solid #eee",
-                display: "flex",
-                alignItems: "center",
-                gap: "10px",
-              }}
+      {/* Conteúdo Principal */}
+      <main className="dashboard-main">
+        <header className="main-header">
+          <h1>Olá, {userData?.nome?.split(" ")[0]}</h1>
+          {!isDono && (
+            <button
+              className="btn-agendar-top"
+              onClick={() => navigate("/agendamento")}
             >
-              <div
-                style={{
-                  backgroundColor: "#e0e7ff",
-                  padding: "8px",
-                  borderRadius: "50%",
-                }}
-              >
-                <User size={20} color="#6366f1" />
+              <Calendar size={18} /> Agendar Novo
+            </button>
+          )}
+        </header>
+
+        {/* Estatísticas Rápidas */}
+        <section className="stats-grid">
+          {isDono ? (
+            <>
+              <div className="stat-card">
+                <h3>Total de Agendamentos</h3>
+                <p>{agendamentos.length}</p>
               </div>
-              <div>
-                <strong style={{ display: "block", color: "#333" }}>
-                  {item.nome}
-                </strong>
-                <span style={{ fontSize: "0.8rem", color: "#666" }}>
-                  {item.servico} - R$ {item.valor}
-                </span>
+              <div className="stat-card">
+                <h3>Faturamento Estimado</h3>
+                <p>R$ {(agendamentos.length * 50).toLocaleString("pt-BR")}</p>
               </div>
+            </>
+          ) : (
+            <div className="cliente-welcome-card">
+              <h3>
+                Você possui {agendamentos.length} agendamento(s) ativo(s).
+              </h3>
             </div>
-          ))
-        ) : (
-          <p style={{ textAlign: "center", padding: "20px", color: "#999" }}>
-            Nenhum agendamento para hoje.
-          </p>
-        )}
-      </div>
+          )}
+        </section>
+
+        {/* Lista de Agendamentos */}
+        <section className="recent-appointments">
+          <h2>{isDono ? "Agenda Geral" : "Meus Agendamentos"}</h2>
+          <div className="appointments-list">
+            {agendamentos.length > 0 ? (
+              agendamentos.map((item) => (
+                <div key={item.id} className="appointment-item">
+                  <div className="item-main">
+                    <Clock size={18} color="#E5B817" />
+                    <div className="details">
+                      <strong>{item.servico}</strong>
+                      <span>
+                        {isDono ? `Cliente: ${item.clienteNome}` : "Confirmado"}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="item-time">
+                    <span>
+                      {item.data} - {item.horario}
+                    </span>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p className="empty-list">Nenhum agendamento encontrado.</p>
+            )}
+          </div>
+        </section>
+      </main>
     </div>
   );
 }

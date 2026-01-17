@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { Mail, Lock, LogIn, Loader2 } from "lucide-react";
-import { auth, db } from "./firebase";
+// CORREÇÃO: Como Login.tsx e firebase.ts estão na mesma pasta 'pages', usa-se ./firebase
+import { auth } from "./firebase";
 import {
   signInWithEmailAndPassword,
   sendPasswordResetEmail,
 } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
-import { doc, getDoc } from "firebase/firestore";
 import logoImg from "../assets/img/logobarber.png";
 import backgroundBarber from "../assets/img/barbearia1.png";
 import "./Login.css";
@@ -17,39 +17,13 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleForgotPassword = async () => {
-    if (!email) {
-      alert("Por favor, digite seu e-mail primeiro.");
-      return;
-    }
-    try {
-      await sendPasswordResetEmail(auth, email);
-      alert("E-mail de recuperação enviado!");
-    } catch (error) {
-      alert("Erro ao enviar e-mail. Verifique o endereço digitado.");
-    }
-  };
-
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-
     try {
-      const userCredential = await signInWithEmailAndPassword(
-        auth,
-        email,
-        password,
-      );
-      const user = userCredential.user;
-
-      const userDoc = await getDoc(doc(db, "usuarios", user.uid));
-      const cargo = userDoc.exists() ? userDoc.data().cargo : "cliente";
-
-      if (cargo === "barbeiro" || user.email === "renatonj0489@gmail.com") {
-        navigate("/dashboard");
-      } else {
-        navigate("/agendamento");
-      }
+      await signInWithEmailAndPassword(auth, email, password);
+      // Redireciona para o Dashboard, que é o HUB central do sistema
+      navigate("/dashboard");
     } catch (error) {
       alert("E-mail ou senha incorretos.");
     } finally {
@@ -64,37 +38,28 @@ export default function Login() {
     >
       <div className="login-card">
         <header className="login-header">
-          <img src={logoImg} alt="Logo Barber Shop" className="login-logo" />
+          <img src={logoImg} alt="Logo" className="login-logo" />
           <p>Acesse sua conta</p>
         </header>
-
         <form onSubmit={handleLogin}>
           <div className="form-group">
-            <div className="input-wrapper">
-              <Mail className="input-icon" size={20} />
-              <input
-                type="email"
-                placeholder="E-mail"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
+            <input
+              type="email"
+              placeholder="E-mail"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
           </div>
-
           <div className="form-group">
-            <div className="input-wrapper">
-              <Lock className="input-icon" size={20} />
-              <input
-                type="password"
-                placeholder="Senha"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-            </div>
+            <input
+              type="password"
+              placeholder="Senha"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
           </div>
-
           <button type="submit" className="btn-login" disabled={loading}>
             {loading ? (
               <Loader2 className="animate-spin" />
@@ -104,20 +69,8 @@ export default function Login() {
               </>
             )}
           </button>
-
-          <div className="forgot-wrapper">
-            <button
-              type="button"
-              onClick={handleForgotPassword}
-              className="forgot-link"
-            >
-              Esqueceu sua senha?
-            </button>
-          </div>
         </form>
-
         <footer className="login-footer">
-          <span>Não possui conta?</span>
           <button onClick={() => navigate("/cadastro")} className="signup-link">
             Faça seu Cadastro
           </button>
